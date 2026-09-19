@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { List, Plus, Users, Trash2, Edit2, X } from 'lucide-react'
+import { List, Plus, Users, Trash2, Edit2, X, UserMinus } from 'lucide-react'
 import Header from '../components/layout/Header'
 import { listsAPI } from '../services/api'
 import type { ContactList, Contact } from '../types'
@@ -52,6 +52,19 @@ export default function Lists() {
       setSelectedList(null)
       toast.success('List deleted')
     },
+  })
+
+  const removeContactMutation = useMutation({
+    mutationFn: (contactId: number) => {
+      if (!selectedList) throw new Error('No list selected')
+      return listsAPI.removeContacts(selectedList.id, [contactId])
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['list-contacts', selectedList?.id] })
+      queryClient.invalidateQueries({ queryKey: ['lists'] })
+      toast.success('Contact removed from list')
+    },
+    onError: () => toast.error('Failed to remove contact'),
   })
 
   const contacts: Contact[] = listContacts?.contacts || []
@@ -135,6 +148,7 @@ export default function Lists() {
                     <th className="text-left px-4 py-3 font-medium text-marble-500">Title</th>
                     <th className="text-left px-4 py-3 font-medium text-marble-500">Company</th>
                     <th className="text-left px-4 py-3 font-medium text-marble-500">Email</th>
+                    <th className="w-10 px-4 py-3"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-marble-100">
@@ -146,6 +160,15 @@ export default function Lists() {
                       <td className="px-4 py-3 text-marble-600">{c.title || '—'}</td>
                       <td className="px-4 py-3 text-marble-600">{c.company_name || '—'}</td>
                       <td className="px-4 py-3 text-marble-600 font-mono text-xs">{c.email || '—'}</td>
+                      <td className="px-4 py-3">
+                        <button
+                          onClick={() => removeContactMutation.mutate(c.id)}
+                          className="text-marble-300 hover:text-red-500 transition-colors p-1 rounded hover:bg-red-50"
+                          title="Remove from list"
+                        >
+                          <UserMinus size={14} />
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

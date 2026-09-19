@@ -79,7 +79,7 @@ export default function Dashboard() {
             <StatCard icon={Phone} label="Phone Numbers" value={stats.contacts_with_phone}
               color="bg-gradient-to-br from-amber-500 to-amber-700" href="/people?has_phone=true" />
             <StatCard icon={CheckCircle} label="Verified Emails" value={stats.verified_emails}
-              color="bg-gradient-to-br from-teal-500 to-teal-700" />
+              color="bg-gradient-to-br from-teal-500 to-teal-700" href="/people" />
             <StatCard icon={List} label="Contact Lists" value={stats.total_lists}
               color="bg-gradient-to-br from-imperial-500 to-imperial-700" href="/lists" />
             <StatCard icon={Zap} label="Sequences" value={stats.total_sequences}

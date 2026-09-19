@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useState, useEffect, useRef } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useSearchParams } from 'react-router-dom'
 import {
   Search, Filter, Mail, Phone, Linkedin, MapPin, Building2,
   ChevronLeft, ChevronRight, Check, Copy, ExternalLink,
   Download, ListPlus, MoreHorizontal, X, Shield, AlertCircle,
+  Eye, Trash2, UserPlus, Globe, Briefcase, Calendar, Star,
 } from 'lucide-react'
 import Header from '../components/layout/Header'
 import { contactsAPI, listsAPI, exportAPI } from '../services/api'
@@ -37,11 +38,261 @@ function CopyButton({ text }: { text: string }) {
   )
 }
 
+/* ── Contact Detail Slide-out ───────────────────────────────────── */
+function ContactDetail({ contact, onClose }: { contact: Contact; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex justify-end">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="relative w-[480px] bg-white shadow-2xl overflow-y-auto animate-slide-in-right">
+        {/* Header */}
+        <div className="sticky top-0 bg-gradient-to-br from-roman-800 to-roman-900 text-white p-6 z-10">
+          <button onClick={onClose} className="absolute top-4 right-4 text-white/60 hover:text-white">
+            <X size={20} />
+          </button>
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-roman-950 font-display font-bold text-xl flex-shrink-0">
+              {contact.first_name[0]}{contact.last_name[0]}
+            </div>
+            <div>
+              <h2 className="text-xl font-display font-bold tracking-wide">
+                {contact.first_name} {contact.last_name}
+              </h2>
+              {contact.title && <p className="text-white/70 text-sm mt-0.5">{contact.title}</p>}
+              {contact.company_name && (
+                <p className="text-brand-300 text-sm flex items-center gap-1 mt-0.5">
+                  <Building2 size={12} /> {contact.company_name}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="p-6 space-y-6">
+          {/* Contact info */}
+          <div>
+            <h3 className="text-xs font-semibold text-marble-400 uppercase tracking-wider mb-3">Contact Information</h3>
+            <div className="space-y-3">
+              {contact.email && (
+                <div className="flex items-center gap-3 p-3 bg-marble-50 rounded-lg">
+                  <Mail size={16} className="text-brand-500 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-marble-400">Email</p>
+                    <p className="text-sm font-mono text-roman-800 truncate">{contact.email}</p>
+                  </div>
+                  <CopyButton text={contact.email} />
+                  <EmailBadge status={contact.email_status} />
+                </div>
+              )}
+              {contact.personal_email && (
+                <div className="flex items-center gap-3 p-3 bg-marble-50 rounded-lg">
+                  <Mail size={16} className="text-marble-400 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-marble-400">Personal Email</p>
+                    <p className="text-sm font-mono text-roman-800 truncate">{contact.personal_email}</p>
+                  </div>
+                  <CopyButton text={contact.personal_email} />
+                </div>
+              )}
+              {contact.phone && (
+                <div className="flex items-center gap-3 p-3 bg-marble-50 rounded-lg">
+                  <Phone size={16} className="text-emerald-500 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-marble-400">Phone</p>
+                    <p className="text-sm font-mono text-roman-800">{contact.phone}</p>
+                  </div>
+                  <CopyButton text={contact.phone} />
+                </div>
+              )}
+              {contact.mobile_phone && (
+                <div className="flex items-center gap-3 p-3 bg-marble-50 rounded-lg">
+                  <Phone size={16} className="text-amber-500 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-marble-400">Mobile</p>
+                    <p className="text-sm font-mono text-roman-800">{contact.mobile_phone}</p>
+                  </div>
+                  <CopyButton text={contact.mobile_phone} />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Professional details */}
+          <div>
+            <h3 className="text-xs font-semibold text-marble-400 uppercase tracking-wider mb-3">Professional Details</h3>
+            <div className="grid grid-cols-2 gap-3">
+              {contact.seniority && (
+                <div className="p-3 bg-marble-50 rounded-lg">
+                  <p className="text-xs text-marble-400">Seniority</p>
+                  <p className="text-sm text-roman-800 capitalize font-medium">{contact.seniority.replace('_', ' ')}</p>
+                </div>
+              )}
+              {contact.department && (
+                <div className="p-3 bg-marble-50 rounded-lg">
+                  <p className="text-xs text-marble-400">Department</p>
+                  <p className="text-sm text-roman-800 capitalize font-medium">{contact.department}</p>
+                </div>
+              )}
+              {contact.headline && (
+                <div className="p-3 bg-marble-50 rounded-lg col-span-2">
+                  <p className="text-xs text-marble-400">Headline</p>
+                  <p className="text-sm text-roman-800">{contact.headline}</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Location */}
+          {(contact.city || contact.state || contact.country) && (
+            <div>
+              <h3 className="text-xs font-semibold text-marble-400 uppercase tracking-wider mb-3">Location</h3>
+              <div className="flex items-center gap-2 p-3 bg-marble-50 rounded-lg">
+                <MapPin size={16} className="text-roman-500 flex-shrink-0" />
+                <p className="text-sm text-roman-800">
+                  {[contact.city, contact.state, contact.country].filter(Boolean).join(', ')}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Social links */}
+          {(contact.linkedin_url || contact.twitter_url || contact.github_url) && (
+            <div>
+              <h3 className="text-xs font-semibold text-marble-400 uppercase tracking-wider mb-3">Social Profiles</h3>
+              <div className="flex gap-2">
+                {contact.linkedin_url && (
+                  <a href={contact.linkedin_url} target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-3 py-2 bg-blue-50 text-blue-600 rounded-lg text-sm hover:bg-blue-100 transition-colors">
+                    <Linkedin size={14} /> LinkedIn
+                  </a>
+                )}
+                {contact.twitter_url && (
+                  <a href={contact.twitter_url} target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-3 py-2 bg-sky-50 text-sky-600 rounded-lg text-sm hover:bg-sky-100 transition-colors">
+                    <Globe size={14} /> Twitter
+                  </a>
+                )}
+                {contact.github_url && (
+                  <a href={contact.github_url} target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-3 py-2 bg-marble-100 text-roman-700 rounded-lg text-sm hover:bg-marble-200 transition-colors">
+                    <ExternalLink size={14} /> GitHub
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Skills */}
+          {contact.skills && contact.skills.length > 0 && (
+            <div>
+              <h3 className="text-xs font-semibold text-marble-400 uppercase tracking-wider mb-3">Skills</h3>
+              <div className="flex flex-wrap gap-1.5">
+                {contact.skills.map((skill) => (
+                  <span key={skill} className="px-2.5 py-1 bg-brand-50 text-brand-700 text-xs rounded-full font-medium">
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Data quality */}
+          <div>
+            <h3 className="text-xs font-semibold text-marble-400 uppercase tracking-wider mb-3">Data Quality</h3>
+            <div className="flex items-center gap-3 p-3 bg-marble-50 rounded-lg">
+              <Star size={16} className="text-brand-500" />
+              <div className="flex-1">
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-marble-500">Quality Score</span>
+                  <span className="font-medium text-roman-800">{contact.data_quality_score}%</span>
+                </div>
+                <div className="h-2 bg-marble-200 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-brand-400 to-brand-600 rounded-full transition-all"
+                    style={{ width: `${contact.data_quality_score}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Meta */}
+          <div className="text-xs text-marble-400 flex items-center gap-4 pt-2 border-t border-marble-100">
+            <span className="flex items-center gap-1"><Calendar size={12} /> Added {new Date(contact.created_at).toLocaleDateString()}</span>
+            {contact.source && <span>Source: {contact.source}</span>}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ── Row Dropdown Menu ───────────────────────────────────── */
+function RowDropdown({
+  contact,
+  onViewDetails,
+  onAddToList,
+  onDelete,
+}: {
+  contact: Contact
+  onViewDetails: () => void
+  onAddToList: () => void
+  onDelete: () => void
+}) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={(e) => { e.stopPropagation(); setOpen(!open) }}
+        className="text-marble-400 hover:text-marble-600 p-1 rounded hover:bg-marble-100 transition-colors"
+      >
+        <MoreHorizontal size={16} />
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full mt-1 w-44 bg-white rounded-lg shadow-xl border border-marble-200 py-1 z-40">
+          <button
+            onClick={() => { setOpen(false); onViewDetails() }}
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-roman-700 hover:bg-marble-50 transition-colors"
+          >
+            <Eye size={14} className="text-marble-400" /> View Details
+          </button>
+          <button
+            onClick={() => { setOpen(false); onAddToList() }}
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-roman-700 hover:bg-marble-50 transition-colors"
+          >
+            <ListPlus size={14} className="text-marble-400" /> Add to List
+          </button>
+          <div className="h-px bg-marble-100 my-1" />
+          <button
+            onClick={() => { setOpen(false); onDelete() }}
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+          >
+            <Trash2 size={14} /> Delete Contact
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ── Main Component ───────────────────────────────────── */
 export default function PeopleSearch() {
+  const queryClient = useQueryClient()
   const [searchParams, setSearchParams] = useSearchParams()
   const [showFilters, setShowFilters] = useState(true)
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
   const [showAddToList, setShowAddToList] = useState(false)
+  const [addToListContactId, setAddToListContactId] = useState<number | null>(null)
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
 
   // Filter state
   const [q, setQ] = useState(searchParams.get('q') || '')
@@ -85,6 +336,15 @@ export default function PeopleSearch() {
     },
   })
 
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => contactsAPI.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contacts'] })
+      toast.success('Contact deleted')
+    },
+    onError: () => toast.error('Failed to delete contact'),
+  })
+
   const contacts: Contact[] = data?.contacts || []
   const total = data?.total || 0
   const totalPages = data?.total_pages || 0
@@ -106,9 +366,11 @@ export default function PeopleSearch() {
 
   const handleAddToList = async (listId: number) => {
     try {
-      await listsAPI.addContacts(listId, Array.from(selectedIds))
-      toast.success(`Added ${selectedIds.size} contacts to list`)
+      const ids = addToListContactId ? [addToListContactId] : Array.from(selectedIds)
+      await listsAPI.addContacts(listId, ids)
+      toast.success(`Added ${ids.length} contact${ids.length > 1 ? 's' : ''} to list`)
       setShowAddToList(false)
+      setAddToListContactId(null)
       setSelectedIds(new Set())
     } catch {
       toast.error('Failed to add contacts')
@@ -138,6 +400,11 @@ export default function PeopleSearch() {
     setPage(1)
   }
 
+  const openAddToListForContact = (contactId: number) => {
+    setAddToListContactId(contactId)
+    setShowAddToList(true)
+  }
+
   return (
     <>
       <Header
@@ -147,7 +414,7 @@ export default function PeopleSearch() {
           selectedIds.size > 0 ? (
             <div className="flex items-center gap-2">
               <span className="text-sm text-marble-600">{selectedIds.size} selected</span>
-              <button onClick={() => setShowAddToList(!showAddToList)} className="btn-secondary text-xs py-1.5">
+              <button onClick={() => { setAddToListContactId(null); setShowAddToList(!showAddToList) }} className="btn-secondary text-xs py-1.5">
                 <ListPlus size={14} /> Add to List
               </button>
               <button onClick={handleExport} className="btn-secondary text-xs py-1.5">
@@ -356,12 +623,13 @@ export default function PeopleSearch() {
                   : contacts.map((contact) => (
                       <tr
                         key={contact.id}
+                        onClick={() => setSelectedContact(contact)}
                         className={clsx(
-                          'hover:bg-marble-50 transition-colors',
+                          'hover:bg-marble-50 transition-colors cursor-pointer',
                           selectedIds.has(contact.id) && 'bg-brand-100/50'
                         )}
                       >
-                        <td className="px-3 py-3">
+                        <td className="px-3 py-3" onClick={(e) => e.stopPropagation()}>
                           <input
                             type="checkbox"
                             checked={selectedIds.has(contact.id)}
@@ -378,7 +646,9 @@ export default function PeopleSearch() {
                               <div className="font-medium text-roman-900 flex items-center gap-1.5">
                                 {contact.first_name} {contact.last_name}
                                 {contact.linkedin_url && (
-                                  <a href={contact.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-600">
+                                  <a href={contact.linkedin_url} target="_blank" rel="noopener noreferrer"
+                                    className="text-blue-500 hover:text-blue-600"
+                                    onClick={(e) => e.stopPropagation()}>
                                     <Linkedin size={12} />
                                   </a>
                                 )}
@@ -398,7 +668,7 @@ export default function PeopleSearch() {
                             </div>
                           ) : '—'}
                         </td>
-                        <td className="px-3 py-3">
+                        <td className="px-3 py-3" onClick={(e) => e.stopPropagation()}>
                           {contact.email ? (
                             <div className="flex items-center gap-1.5">
                               <span className="text-roman-700 font-mono text-xs">{contact.email}</span>
@@ -409,7 +679,7 @@ export default function PeopleSearch() {
                             <span className="text-marble-400 text-xs">No email</span>
                           )}
                         </td>
-                        <td className="px-3 py-3">
+                        <td className="px-3 py-3" onClick={(e) => e.stopPropagation()}>
                           {contact.phone ? (
                             <div className="flex items-center gap-1.5">
                               <span className="text-roman-700 font-mono text-xs">{contact.phone}</span>
@@ -427,10 +697,17 @@ export default function PeopleSearch() {
                             </div>
                           ) : '—'}
                         </td>
-                        <td className="px-3 py-3">
-                          <button className="text-marble-400 hover:text-marble-600">
-                            <MoreHorizontal size={16} />
-                          </button>
+                        <td className="px-3 py-3" onClick={(e) => e.stopPropagation()}>
+                          <RowDropdown
+                            contact={contact}
+                            onViewDetails={() => setSelectedContact(contact)}
+                            onAddToList={() => openAddToListForContact(contact.id)}
+                            onDelete={() => {
+                              if (confirm(`Delete ${contact.first_name} ${contact.last_name}?`)) {
+                                deleteMutation.mutate(contact.id)
+                              }
+                            }}
+                          />
                         </td>
                       </tr>
                     ))}
@@ -448,16 +725,24 @@ export default function PeopleSearch() {
         </div>
       </div>
 
+      {/* Contact detail slide-out */}
+      {selectedContact && (
+        <ContactDetail contact={selectedContact} onClose={() => setSelectedContact(null)} />
+      )}
+
       {/* Add to list modal */}
       {showAddToList && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowAddToList(false)}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => { setShowAddToList(false); setAddToListContactId(null) }}>
           <div className="bg-white rounded-xl p-6 w-96 shadow-xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-roman-900">Add to List</h3>
-              <button onClick={() => setShowAddToList(false)} className="text-marble-400 hover:text-marble-600">
+              <button onClick={() => { setShowAddToList(false); setAddToListContactId(null) }} className="text-marble-400 hover:text-marble-600">
                 <X size={20} />
               </button>
             </div>
+            <p className="text-xs text-marble-500 mb-3">
+              {addToListContactId ? 'Adding 1 contact' : `Adding ${selectedIds.size} contact${selectedIds.size > 1 ? 's' : ''}`}
+            </p>
             <div className="space-y-2 max-h-60 overflow-y-auto">
               {lists?.map((list) => (
                 <button
@@ -472,6 +757,9 @@ export default function PeopleSearch() {
                   </div>
                 </button>
               ))}
+              {(!lists || lists.length === 0) && (
+                <p className="text-sm text-marble-400 text-center py-4">No lists yet — create one from the Lists page</p>
+              )}
             </div>
           </div>
         </div>
