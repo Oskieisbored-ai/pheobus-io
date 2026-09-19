@@ -145,6 +145,86 @@ def seed():
             "tech_stack": ["TypeScript", "React", "Java", "AWS"],
             "website_url": "https://miro.com",
         },
+        # Construction
+        {
+            "name": "Bechtel", "domain": "bechtel.com", "industry": "Construction",
+            "employee_range": "10001+", "employee_count": 55000,
+            "headquarters_city": "San Francisco", "headquarters_state": "California",
+            "headquarters_country": "United States", "founded_year": 1898,
+            "description": "One of the largest construction and civil engineering companies in the world, delivering complex infrastructure projects across six continents.",
+            "short_description": "Global infrastructure & construction giant",
+            "tech_stack": ["SAP", "Primavera", "BIM 360", "Procore"],
+            "website_url": "https://bechtel.com", "linkedin_url": "https://linkedin.com/company/bechtel",
+            "revenue_range": "$1B+",
+        },
+        {
+            "name": "Turner Construction", "domain": "turnerconstruction.com", "industry": "Construction",
+            "employee_range": "10001+", "employee_count": 12000,
+            "headquarters_city": "New York", "headquarters_state": "New York",
+            "headquarters_country": "United States", "founded_year": 1902,
+            "description": "North America's largest general builder, specializing in commercial buildings, healthcare facilities, and green building.",
+            "short_description": "Leading US general contractor & builder",
+            "tech_stack": ["Procore", "Bluebeam", "PlanGrid", "BIM"],
+            "website_url": "https://turnerconstruction.com", "linkedin_url": "https://linkedin.com/company/turner-construction",
+            "revenue_range": "$1B+",
+        },
+        {
+            "name": "Skanska", "domain": "skanska.com", "industry": "Construction",
+            "employee_range": "10001+", "employee_count": 30000,
+            "headquarters_city": "New York", "headquarters_state": "New York",
+            "headquarters_country": "United States", "founded_year": 1887,
+            "description": "Global construction and development company building schools, hospitals, highways, and sustainable infrastructure.",
+            "short_description": "Swedish-American construction multinational",
+            "tech_stack": ["BIM 360", "Procore", "Trimble", "Microsoft Azure"],
+            "website_url": "https://skanska.com",
+            "revenue_range": "$1B+",
+        },
+        {
+            "name": "Hensel Phelps", "domain": "henselphelps.com", "industry": "Construction",
+            "employee_range": "1001-5000", "employee_count": 4300,
+            "headquarters_city": "Denver", "headquarters_state": "Colorado",
+            "headquarters_country": "United States", "founded_year": 1937,
+            "description": "Employee-owned general contractor known for delivering complex building projects across aviation, healthcare, and government sectors.",
+            "short_description": "Employee-owned US general contractor",
+            "tech_stack": ["Procore", "Revit", "Navisworks"],
+            "website_url": "https://henselphelps.com",
+        },
+        # Healthcare
+        {
+            "name": "Epic Systems", "domain": "epic.com", "industry": "Healthcare",
+            "employee_range": "10001+", "employee_count": 13000,
+            "headquarters_city": "Chicago", "headquarters_state": "Illinois",
+            "headquarters_country": "United States", "founded_year": 1979,
+            "description": "Electronic health records software used by hospitals and health systems serving over 250 million patients.",
+            "short_description": "Dominant EHR software for hospitals",
+            "tech_stack": ["M/MUMPS", "C#", ".NET", "Azure"],
+            "website_url": "https://epic.com",
+            "revenue_range": "$1B+",
+        },
+        # E-Commerce
+        {
+            "name": "Shopify", "domain": "shopify.com", "industry": "E-Commerce",
+            "employee_range": "10001+", "employee_count": 12000,
+            "headquarters_city": "Toronto", "headquarters_state": "Ontario",
+            "headquarters_country": "Canada", "founded_year": 2006,
+            "description": "Commerce platform powering millions of businesses with online stores, payments, and fulfillment.",
+            "short_description": "E-commerce platform for online stores",
+            "tech_stack": ["Ruby on Rails", "React", "Go", "Rust", "GCP"],
+            "website_url": "https://shopify.com", "linkedin_url": "https://linkedin.com/company/shopify",
+            "revenue_range": "$1B+", "total_funding": 122000000,
+        },
+        # Marketing
+        {
+            "name": "HubSpot", "domain": "hubspot.com", "industry": "Marketing",
+            "employee_range": "5001-10000", "employee_count": 7600,
+            "headquarters_city": "Boston", "headquarters_state": "Massachusetts",
+            "headquarters_country": "United States", "founded_year": 2006,
+            "description": "CRM platform with marketing, sales, customer service, and content management software.",
+            "short_description": "Inbound marketing & CRM platform",
+            "tech_stack": ["Java", "React", "Kafka", "HBase", "AWS"],
+            "website_url": "https://hubspot.com", "linkedin_url": "https://linkedin.com/company/hubspot",
+            "revenue_range": "$1B+",
+        },
     ]
 
     company_objs = []
@@ -257,6 +337,58 @@ def seed():
          "department": "product", "email": "varun@miro.com", "email_status": "unverified",
          "email_confidence": 0.65, "city": "San Francisco", "state": "California",
          "country": "United States", "company_idx": 9},
+
+        # Bechtel (Construction)
+        {"first_name": "Brendan", "last_name": "Bechtel", "title": "Chairman & CEO", "seniority": "c_suite",
+         "department": "executive", "email": "brendan.bechtel@bechtel.com", "email_status": "verified",
+         "email_confidence": 0.85, "phone": "+1-415-555-1001", "city": "San Francisco",
+         "state": "California", "country": "United States", "company_idx": 10},
+        {"first_name": "Craig", "last_name": "Albert", "title": "President & COO", "seniority": "c_suite",
+         "department": "operations", "email": "craig.albert@bechtel.com", "email_status": "verified",
+         "email_confidence": 0.8, "city": "San Francisco", "state": "California",
+         "country": "United States", "company_idx": 10},
+
+        # Turner Construction
+        {"first_name": "Peter", "last_name": "Davoren", "title": "President & CEO", "seniority": "c_suite",
+         "department": "executive", "email": "peter.davoren@tcco.com", "email_status": "verified",
+         "email_confidence": 0.8, "phone": "+1-212-555-1101", "city": "New York",
+         "state": "New York", "country": "United States", "company_idx": 11},
+
+        # Skanska
+        {"first_name": "Richard", "last_name": "Cavallaro", "title": "EVP & COO", "seniority": "c_suite",
+         "department": "operations", "email": "richard.cavallaro@skanska.com", "email_status": "unverified",
+         "email_confidence": 0.7, "phone": "+1-212-555-1201", "city": "New York",
+         "state": "New York", "country": "United States", "company_idx": 12},
+
+        # Hensel Phelps
+        {"first_name": "Michael", "last_name": "Choutka", "title": "President & CEO", "seniority": "c_suite",
+         "department": "executive", "email": "mchoutka@henselphelps.com", "email_status": "verified",
+         "email_confidence": 0.85, "city": "Denver", "state": "Colorado",
+         "country": "United States", "company_idx": 13},
+
+        # Epic Systems
+        {"first_name": "Judy", "last_name": "Faulkner", "title": "Founder & CEO", "seniority": "c_suite",
+         "department": "executive", "email": "judy@epic.com", "email_status": "verified",
+         "email_confidence": 0.9, "city": "Chicago", "state": "Illinois",
+         "country": "United States", "company_idx": 14},
+
+        # Shopify
+        {"first_name": "Tobias", "last_name": "Lutke", "title": "CEO & Founder", "seniority": "c_suite",
+         "department": "executive", "email": "tobi@shopify.com", "email_status": "verified",
+         "email_confidence": 0.9, "phone": "+1-416-555-1401", "city": "Toronto",
+         "state": "Ontario", "country": "Canada",
+         "linkedin_url": "https://linkedin.com/in/tobiaslutke", "company_idx": 15},
+
+        # HubSpot
+        {"first_name": "Yamini", "last_name": "Rangan", "title": "CEO", "seniority": "c_suite",
+         "department": "executive", "email": "yrangan@hubspot.com", "email_status": "verified",
+         "email_confidence": 0.85, "phone": "+1-617-555-1501", "city": "Boston",
+         "state": "Massachusetts", "country": "United States",
+         "linkedin_url": "https://linkedin.com/in/yaminirangan", "company_idx": 16},
+        {"first_name": "Dharmesh", "last_name": "Shah", "title": "CTO & Co-Founder", "seniority": "c_suite",
+         "department": "engineering", "email": "dshah@hubspot.com", "email_status": "verified",
+         "email_confidence": 0.9, "city": "Boston", "state": "Massachusetts",
+         "country": "United States", "company_idx": 16},
     ]
 
     contact_objs = []

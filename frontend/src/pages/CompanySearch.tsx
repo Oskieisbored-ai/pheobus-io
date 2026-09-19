@@ -51,9 +51,10 @@ function getCoords(co: Company): [number, number] | null {
 }
 
 // ─── Map Component (Google Maps Embed — no API key needed) ──────────────
-function CompanyMapView({ companies, onSelectCompany }: {
+function CompanyMapView({ companies, onSelectCompany, mapQuery }: {
   companies: Company[]
   onSelectCompany: (co: Company) => void
+  mapQuery: string
 }) {
   const [hoveredId, setHoveredId] = useState<number | null>(null)
   const companiesWithCoords = useMemo(
@@ -80,7 +81,7 @@ function CompanyMapView({ companies, onSelectCompany }: {
           className="w-full h-full border-0"
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
-          src={`https://www.google.com/maps/embed/v1/search?key=${MAPS_KEY}&q=tech+companies&center=${center.lat},${center.lng}&zoom=4`}
+          src={`https://www.google.com/maps/embed/v1/search?key=${MAPS_KEY}&q=${encodeURIComponent(mapQuery || 'companies')}&center=${center.lat},${center.lng}&zoom=${companiesWithCoords.length <= 1 ? 10 : 4}`}
           allowFullScreen
         />
 
@@ -539,10 +540,25 @@ export default function CompanySearch() {
           {/* Content area */}
           <div className="flex flex-1 overflow-hidden">
             {viewMode === 'map' ? (
-              <CompanyMapView
-                companies={companies}
-                onSelectCompany={setSelectedCompany}
-              />
+              companies.length === 0 && !isLoading ? (
+                <div className="flex-1 flex flex-col items-center justify-center text-marble-400">
+                  <Building2 size={48} className="mb-4 opacity-30" />
+                  <p className="text-lg font-medium text-marble-500">No companies match this filter</p>
+                  <p className="text-sm">Try selecting a different business type or clearing filters</p>
+                </div>
+              ) : (
+                <CompanyMapView
+                  companies={companies}
+                  onSelectCompany={setSelectedCompany}
+                  mapQuery={
+                    allSelectedIndustries.length
+                      ? allSelectedIndustries.join(' ') + ' companies'
+                      : q
+                        ? q + ' companies'
+                        : 'companies'
+                  }
+                />
+              )
             ) : (
               <div className="flex-1 overflow-auto">
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 p-4">
