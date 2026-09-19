@@ -461,24 +461,37 @@ export default function CompanySearch() {
               <Filter size={14} /> Filters
             </button>
 
-            {/* Search bar */}
-            <div className="relative flex-1 max-w-md">
-              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-marble-400" />
-              <input
-                value={q}
-                onChange={(e) => { setQ(e.target.value); setPage(1) }}
-                placeholder="Search companies by name, domain, industry..."
-                className="w-full pl-9 pr-3 py-1.5 text-sm border border-marble-300 rounded-lg bg-white placeholder-marble-400 focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-500 transition-colors"
-              />
-              {q && (
-                <button
-                  onClick={() => { setQ(''); setPage(1) }}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-marble-400 hover:text-marble-600"
-                >
-                  <X size={14} />
-                </button>
-              )}
-            </div>
+            {/* Search bar — linked to Google Maps */}
+            <form
+              className="relative flex-1 max-w-md flex items-center"
+              onSubmit={(e) => { e.preventDefault(); if (q.trim()) setViewMode('map') }}
+            >
+              <div className="relative flex-1">
+                <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-marble-400" />
+                <input
+                  value={q}
+                  onChange={(e) => { setQ(e.target.value); setPage(1) }}
+                  placeholder="Search companies on Google Maps..."
+                  className="w-full pl-9 pr-9 py-1.5 text-sm border border-marble-300 rounded-l-lg bg-white placeholder-marble-400 focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-500 transition-colors"
+                />
+                {q && (
+                  <button
+                    type="button"
+                    onClick={() => { setQ(''); setPage(1) }}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-marble-400 hover:text-marble-600"
+                  >
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
+              <button
+                type="submit"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-b from-brand-400 to-brand-500 text-roman-950 text-sm font-medium rounded-r-lg border border-brand-600/20 hover:from-brand-500 hover:to-brand-600 transition-all flex-shrink-0"
+                title="Search on Google Maps"
+              >
+                <MapPin size={14} /> Maps
+              </button>
+            </form>
 
             {/* View toggle */}
             <div className="flex items-center bg-marble-100 rounded-lg p-0.5 flex-shrink-0">
