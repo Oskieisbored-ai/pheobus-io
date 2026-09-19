@@ -7,7 +7,7 @@ import {
 import Header from '../components/layout/Header'
 import { companiesAPI } from '../services/api'
 import type { Company } from '../types'
-import { EMPLOYEE_RANGE_OPTIONS, BUSINESS_TYPE_OPTIONS } from '../types'
+import { BUSINESS_TYPE_OPTIONS } from '../types'
 import clsx from 'clsx'
 
 // Google Maps Embed API key — free tier, embed-only
@@ -289,7 +289,6 @@ export default function CompanySearch() {
   const [industries, setIndustries] = useState<string[]>([])
   const [customIndustry, setCustomIndustry] = useState('')
   const [country, setCountry] = useState('')
-  const [employeeRange, setEmployeeRange] = useState<string[]>([])
   const [page, setPage] = useState(1)
   const [showFilters, setShowFilters] = useState(true)
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null)
@@ -304,7 +303,6 @@ export default function CompanySearch() {
   if (q) queryParams.q = q
   if (allSelectedIndustries.length) queryParams.industry = allSelectedIndustries.join(',')
   if (country) queryParams.country = country
-  if (employeeRange.length) queryParams.employee_range = employeeRange.join(',')
 
   const toggleIndustry = (value: string) => {
     setIndustries(prev =>
@@ -351,24 +349,11 @@ export default function CompanySearch() {
             <div className="flex items-center justify-between">
               <h3 className="font-semibold text-sm text-roman-700">Filters</h3>
               <button
-                onClick={() => { setQ(''); setIndustries([]); setCustomIndustry(''); setCountry(''); setEmployeeRange([]); setPage(1) }}
+                onClick={() => { setQ(''); setIndustries([]); setCustomIndustry(''); setCountry(''); setPage(1) }}
                 className="text-xs text-marble-400 hover:text-marble-600"
               >
                 Clear all
               </button>
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-marble-500 mb-1.5">Search</label>
-              <div className="relative">
-                <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-marble-400" />
-                <input
-                  value={q}
-                  onChange={(e) => { setQ(e.target.value); setPage(1) }}
-                  placeholder="Name or domain..."
-                  className="input pl-8 text-xs py-1.5"
-                />
-              </div>
             </div>
 
             <div>
@@ -462,69 +447,64 @@ export default function CompanySearch() {
               />
             </div>
 
-            <div>
-              <label className="block text-xs font-medium text-marble-500 mb-2">Company Size</label>
-              <div className="space-y-1">
-                {EMPLOYEE_RANGE_OPTIONS.map((range) => (
-                  <label key={range} className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={employeeRange.includes(range)}
-                      onChange={() => {
-                        if (employeeRange.includes(range)) {
-                          setEmployeeRange(employeeRange.filter((r) => r !== range))
-                        } else {
-                          setEmployeeRange([...employeeRange, range])
-                        }
-                        setPage(1)
-                      }}
-                      className="rounded border-marble-300 text-brand-600 focus:ring-brand-500"
-                    />
-                    <span className="text-xs text-roman-700">{range} employees</span>
-                  </label>
-                ))}
-              </div>
-            </div>
           </div>
         )}
 
         {/* Results */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Toolbar */}
-          <div className="flex items-center justify-between px-4 py-2 border-b border-marble-200 bg-marble-50">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className={clsx('btn-ghost text-xs', showFilters && 'bg-marble-100')}
-              >
-                <Filter size={14} /> Filters
-              </button>
+          <div className="flex items-center gap-3 px-4 py-2.5 border-b border-marble-200 bg-marble-50">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={clsx('btn-ghost text-xs flex-shrink-0', showFilters && 'bg-marble-100')}
+            >
+              <Filter size={14} /> Filters
+            </button>
 
-              {/* View toggle */}
-              <div className="flex items-center bg-marble-100 rounded-lg p-0.5 ml-2">
+            {/* Search bar */}
+            <div className="relative flex-1 max-w-md">
+              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-marble-400" />
+              <input
+                value={q}
+                onChange={(e) => { setQ(e.target.value); setPage(1) }}
+                placeholder="Search companies by name, domain, industry..."
+                className="w-full pl-9 pr-3 py-1.5 text-sm border border-marble-300 rounded-lg bg-white placeholder-marble-400 focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-500 transition-colors"
+              />
+              {q && (
                 <button
-                  onClick={() => setViewMode('grid')}
-                  className={clsx(
-                    'p-1.5 rounded-md transition-colors',
-                    viewMode === 'grid' ? 'bg-white shadow-sm text-roman-900' : 'text-marble-400 hover:text-marble-600'
-                  )}
-                  title="Grid view"
+                  onClick={() => { setQ(''); setPage(1) }}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-marble-400 hover:text-marble-600"
                 >
-                  <LayoutGrid size={14} />
+                  <X size={14} />
                 </button>
-                <button
-                  onClick={() => setViewMode('map')}
-                  className={clsx(
-                    'p-1.5 rounded-md transition-colors',
-                    viewMode === 'map' ? 'bg-white shadow-sm text-roman-900' : 'text-marble-400 hover:text-marble-600'
-                  )}
-                  title="Map view"
-                >
-                  <Map size={14} />
-                </button>
-              </div>
+              )}
             </div>
-            <div className="flex items-center gap-2 text-xs text-marble-500">
+
+            {/* View toggle */}
+            <div className="flex items-center bg-marble-100 rounded-lg p-0.5 flex-shrink-0">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={clsx(
+                  'p-1.5 rounded-md transition-colors',
+                  viewMode === 'grid' ? 'bg-white shadow-sm text-roman-900' : 'text-marble-400 hover:text-marble-600'
+                )}
+                title="Grid view"
+              >
+                <LayoutGrid size={14} />
+              </button>
+              <button
+                onClick={() => setViewMode('map')}
+                className={clsx(
+                  'p-1.5 rounded-md transition-colors',
+                  viewMode === 'map' ? 'bg-white shadow-sm text-roman-900' : 'text-marble-400 hover:text-marble-600'
+                )}
+                title="Map view"
+              >
+                <Map size={14} />
+              </button>
+            </div>
+
+            <div className="flex items-center gap-2 text-xs text-marble-500 flex-shrink-0">
               Page {page} of {totalPages}
               <button onClick={() => setPage(Math.max(1, page - 1))} disabled={page <= 1}
                 className="p-1 rounded hover:bg-marble-200 disabled:opacity-30">
