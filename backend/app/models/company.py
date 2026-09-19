@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, JSON
+from sqlalchemy import Column, Integer, Float, String, Text, DateTime, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base
@@ -28,6 +28,8 @@ class Company(Base):
     headquarters_state = Column(String(100))
     headquarters_country = Column(String(100), index=True)
     full_address = Column(String(500))
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
 
     # Online presence
     website_url = Column(String(512))

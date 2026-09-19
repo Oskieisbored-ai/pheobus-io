@@ -42,6 +42,10 @@ class CompanyResponse(CompanyBase):
     data_quality_score: int = 0
     created_at: datetime
     contact_count: int = 0
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    google_search_url: Optional[str] = None
+    google_maps_url: Optional[str] = None
 
     class Config:
         from_attributes = True

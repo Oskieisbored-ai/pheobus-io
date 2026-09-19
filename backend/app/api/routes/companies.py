@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_, func
 from typing import Optional, List
 from math import ceil
+from urllib.parse import quote_plus
 from app.core.database import get_db
 from app.core.security import get_current_user
 from app.models.user import User
@@ -11,6 +12,30 @@ from app.models.contact import Contact
 from app.schemas.company import (
     CompanyCreate, CompanyResponse, CompanySearchFilters, PaginatedCompanies,
 )
+
+
+def _enrich_company_response(co: Company, contact_count: int) -> CompanyResponse:
+    """Build a CompanyResponse with computed Google URLs."""
+    co_dict = CompanyResponse.model_validate(co).model_dump()
+    co_dict["contact_count"] = contact_count
+
+    # Google Search URL — especially useful when no website exists
+    search_query = co.name
+    if co.headquarters_city:
+        search_query += f" {co.headquarters_city}"
+    if co.industry:
+        search_query += f" {co.industry}"
+    co_dict["google_search_url"] = f"https://www.google.com/search?q={quote_plus(search_query)}"
+
+    # Google Maps URL
+    location_parts = [p for p in [co.full_address, co.headquarters_city, co.headquarters_state, co.headquarters_country] if p]
+    if location_parts:
+        maps_query = f"{co.name}, {', '.join(location_parts)}"
+    else:
+        maps_query = co.name
+    co_dict["google_maps_url"] = f"https://www.google.com/maps/search/?api=1&query={quote_plus(maps_query)}"
+
+    return CompanyResponse(**co_dict)
 
 router = APIRouter(prefix="/companies", tags=["Companies"])
 
@@ -74,9 +99,8 @@ def search_companies(
 
     companies = []
     for co in companies_raw:
-        co_dict = CompanyResponse.model_validate(co).model_dump()
-        co_dict["contact_count"] = db.query(Contact).filter(Contact.company_id == co.id).count()
-        companies.append(CompanyResponse(**co_dict))
+        cnt = db.query(Contact).filter(Contact.company_id == co.id).count()
+        companies.append(_enrich_company_response(co, cnt))
 
     return PaginatedCompanies(
         companies=companies,
@@ -97,9 +121,8 @@ def get_company(
     if not company:
         raise HTTPException(status_code=404, detail="Company not found")
 
-    co_dict = CompanyResponse.model_validate(company).model_dump()
-    co_dict["contact_count"] = db.query(Contact).filter(Contact.company_id == company.id).count()
-    return CompanyResponse(**co_dict)
+    cnt = db.query(Contact).filter(Contact.company_id == company.id).count()
+    return _enrich_company_response(company, cnt)
 
 
 @router.post("", response_model=CompanyResponse, status_code=201)

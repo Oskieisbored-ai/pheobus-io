@@ -78,6 +78,10 @@ export interface Company {
   data_quality_score: number
   created_at: string
   contact_count: number
+  latitude?: number
+  longitude?: number
+  google_search_url?: string
+  google_maps_url?: string
 }
 
 export interface ContactList {
