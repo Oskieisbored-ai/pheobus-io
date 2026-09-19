@@ -75,8 +75,10 @@ def search_companies(
     if domain:
         query = query.filter(Company.domain.ilike(f"%{domain}%"))
     if industry:
-        industries = industry.split(",")
-        query = query.filter(Company.industry.in_(industries))
+        industries = [i.strip() for i in industry.split(",") if i.strip()]
+        if industries:
+            industry_filters = [Company.industry.ilike(f"%{ind}%") for ind in industries]
+            query = query.filter(or_(*industry_filters))
     if employee_range:
         ranges = employee_range.split(",")
         query = query.filter(Company.employee_range.in_(ranges))

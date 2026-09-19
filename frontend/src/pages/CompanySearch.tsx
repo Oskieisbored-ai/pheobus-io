@@ -2,12 +2,12 @@ import { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import {
   Search, Building2, Globe, Users, MapPin, ChevronLeft, ChevronRight,
-  ExternalLink, Filter, Layers, Map, LayoutGrid, Navigation, X,
+  ExternalLink, Filter, Layers, Map, LayoutGrid, Navigation, X, ChevronDown,
 } from 'lucide-react'
 import Header from '../components/layout/Header'
 import { companiesAPI } from '../services/api'
 import type { Company } from '../types'
-import { EMPLOYEE_RANGE_OPTIONS } from '../types'
+import { EMPLOYEE_RANGE_OPTIONS, BUSINESS_TYPE_OPTIONS } from '../types'
 import clsx from 'clsx'
 
 // Google Maps Embed API key — free tier, embed-only
@@ -285,19 +285,47 @@ function CompanyDetail({ company, onClose }: { company: Company; onClose: () => 
 // ─── Main Page ──────────────────────────────────────────────────────────
 export default function CompanySearch() {
   const [q, setQ] = useState('')
-  const [industry, setIndustry] = useState('')
+  const [industries, setIndustries] = useState<string[]>([])
+  const [customIndustry, setCustomIndustry] = useState('')
   const [country, setCountry] = useState('')
   const [employeeRange, setEmployeeRange] = useState<string[]>([])
   const [page, setPage] = useState(1)
   const [showFilters, setShowFilters] = useState(true)
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null)
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid')
+  const [expandedCategories, setExpandedCategories] = useState<string[]>(['Tech'])
+
+  const allSelectedIndustries = customIndustry
+    ? [...industries, ...customIndustry.split(',').map(s => s.trim()).filter(Boolean)]
+    : industries
 
   const queryParams: Record<string, any> = { page, per_page: 25 }
   if (q) queryParams.q = q
-  if (industry) queryParams.industry = industry
+  if (allSelectedIndustries.length) queryParams.industry = allSelectedIndustries.join(',')
   if (country) queryParams.country = country
   if (employeeRange.length) queryParams.employee_range = employeeRange.join(',')
+
+  const toggleIndustry = (value: string) => {
+    setIndustries(prev =>
+      prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]
+    )
+    setPage(1)
+  }
+
+  const toggleCategory = (cat: string) => {
+    setExpandedCategories(prev =>
+      prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
+    )
+  }
+
+  const categories = useMemo(() => {
+    const cats: Record<string, typeof BUSINESS_TYPE_OPTIONS> = {}
+    BUSINESS_TYPE_OPTIONS.forEach(opt => {
+      if (!cats[opt.category]) cats[opt.category] = []
+      cats[opt.category].push(opt)
+    })
+    return cats
+  }, [])
 
   const { data, isLoading } = useQuery({
     queryKey: ['companies', queryParams],
@@ -322,7 +350,7 @@ export default function CompanySearch() {
             <div className="flex items-center justify-between">
               <h3 className="font-semibold text-sm text-roman-700">Filters</h3>
               <button
-                onClick={() => { setQ(''); setIndustry(''); setCountry(''); setEmployeeRange([]); setPage(1) }}
+                onClick={() => { setQ(''); setIndustries([]); setCustomIndustry(''); setCountry(''); setEmployeeRange([]); setPage(1) }}
                 className="text-xs text-marble-400 hover:text-marble-600"
               >
                 Clear all
@@ -343,12 +371,83 @@ export default function CompanySearch() {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-marble-500 mb-1.5">Industry</label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-medium text-marble-500">Business Type</label>
+                {industries.length > 0 && (
+                  <button
+                    onClick={() => { setIndustries([]); setPage(1) }}
+                    className="text-[10px] text-brand-500 hover:text-brand-600"
+                  >
+                    Clear ({industries.length})
+                  </button>
+                )}
+              </div>
+
+              {/* Selected chips */}
+              {industries.length > 0 && (
+                <div className="flex flex-wrap gap-1 mb-2">
+                  {industries.map(ind => {
+                    const opt = BUSINESS_TYPE_OPTIONS.find(o => o.value === ind)
+                    return (
+                      <span
+                        key={ind}
+                        className="inline-flex items-center gap-1 px-2 py-0.5 bg-brand-50 text-brand-700 rounded-full text-[10px] font-medium"
+                      >
+                        {opt?.label || ind}
+                        <button
+                          onClick={() => toggleIndustry(ind)}
+                          className="text-brand-400 hover:text-brand-600"
+                        >
+                          <X size={10} />
+                        </button>
+                      </span>
+                    )
+                  })}
+                </div>
+              )}
+
+              {/* Category groups */}
+              <div className="space-y-1 max-h-64 overflow-y-auto pr-1">
+                {Object.entries(categories).map(([cat, options]) => (
+                  <div key={cat}>
+                    <button
+                      onClick={() => toggleCategory(cat)}
+                      className="flex items-center justify-between w-full py-1 text-xs font-medium text-roman-700 hover:text-roman-900"
+                    >
+                      <span>{cat}</span>
+                      <ChevronDown
+                        size={12}
+                        className={clsx(
+                          'transition-transform text-marble-400',
+                          expandedCategories.includes(cat) && 'rotate-180'
+                        )}
+                      />
+                    </button>
+                    {expandedCategories.includes(cat) && (
+                      <div className="pl-1 space-y-0.5 pb-1">
+                        {options.map(opt => (
+                          <label key={opt.value} className="flex items-center gap-2 cursor-pointer py-0.5">
+                            <input
+                              type="checkbox"
+                              checked={industries.includes(opt.value)}
+                              onChange={() => toggleIndustry(opt.value)}
+                              className="rounded border-marble-300 text-brand-600 focus:ring-brand-500 h-3.5 w-3.5"
+                            />
+                            <span className="text-xs text-roman-700">{opt.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Custom industry input */}
               <input
-                value={industry}
-                onChange={(e) => { setIndustry(e.target.value); setPage(1) }}
-                placeholder="e.g. SaaS, FinTech"
-                className="input text-xs py-1.5"
+                value={customIndustry}
+                onChange={(e) => { setCustomIndustry(e.target.value); setPage(1) }}
+                placeholder="Or type custom..."
+                className="input text-xs py-1.5 mt-2"
               />
             </div>
 

@@ -179,3 +179,40 @@ export const DEPARTMENT_OPTIONS: { value: Department; label: string }[] = [
 export const EMPLOYEE_RANGE_OPTIONS = [
   '1-10', '11-50', '51-200', '201-500', '501-1000', '1001-5000', '5001-10000', '10001+',
 ]
+
+export const BUSINESS_TYPE_OPTIONS: { value: string; label: string; category: string }[] = [
+  // Tech & Software
+  { value: 'Software', category: 'Tech', label: 'Software / SaaS' },
+  { value: 'Cloud Platform', category: 'Tech', label: 'Cloud Platform' },
+  { value: 'AI/Machine Learning', category: 'Tech', label: 'AI / Machine Learning' },
+  { value: 'Cybersecurity', category: 'Tech', label: 'Cybersecurity' },
+  { value: 'Data Analytics', category: 'Tech', label: 'Data & Analytics' },
+  { value: 'Cloud Monitoring', category: 'Tech', label: 'DevOps / Monitoring' },
+  { value: 'Design Software', category: 'Tech', label: 'Design Software' },
+  { value: 'Project Management', category: 'Tech', label: 'Project Management' },
+  { value: 'Collaboration Software', category: 'Tech', label: 'Collaboration' },
+  // Finance & Commerce
+  { value: 'Financial Technology', category: 'Finance', label: 'FinTech' },
+  { value: 'Banking', category: 'Finance', label: 'Banking' },
+  { value: 'Insurance', category: 'Finance', label: 'InsurTech' },
+  { value: 'E-Commerce', category: 'Finance', label: 'E-Commerce' },
+  { value: 'Payments', category: 'Finance', label: 'Payments' },
+  // Industry
+  { value: 'Healthcare', category: 'Industry', label: 'HealthTech' },
+  { value: 'Education', category: 'Industry', label: 'EdTech' },
+  { value: 'Real Estate', category: 'Industry', label: 'PropTech' },
+  { value: 'Logistics', category: 'Industry', label: 'Logistics / Supply Chain' },
+  { value: 'Manufacturing', category: 'Industry', label: 'Manufacturing' },
+  { value: 'Energy', category: 'Industry', label: 'Energy / CleanTech' },
+  // Services
+  { value: 'Marketing', category: 'Services', label: 'Marketing / AdTech' },
+  { value: 'HR Tech', category: 'Services', label: 'HR Tech' },
+  { value: 'Legal Tech', category: 'Services', label: 'Legal Tech' },
+  { value: 'Consulting', category: 'Services', label: 'Consulting' },
+  { value: 'Recruiting', category: 'Services', label: 'Recruiting / Staffing' },
+  // Media & Consumer
+  { value: 'Media', category: 'Media', label: 'Media / Entertainment' },
+  { value: 'Gaming', category: 'Media', label: 'Gaming' },
+  { value: 'Food & Beverage', category: 'Media', label: 'Food & Beverage' },
+  { value: 'Travel', category: 'Media', label: 'Travel / Hospitality' },
+]
