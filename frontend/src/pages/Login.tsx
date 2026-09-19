@@ -189,13 +189,6 @@ export default function Login() {
             </button>
           </div>
 
-          {!isRegister && (
-            <div className="mt-6 p-4 bg-marble-100 rounded-lg text-sm text-roman-600 border border-marble-200">
-              <p className="font-display text-roman-800 mb-1 text-xs tracking-wider">DEMO CREDENTIALS</p>
-              <p>Email: demo@pheobus.io</p>
-              <p>Password: demo1234</p>
-            </div>
-          )}
         </div>
       </div>
     </div>

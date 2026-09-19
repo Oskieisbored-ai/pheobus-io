@@ -38,12 +38,12 @@ def seed():
     db.add(workspace)
     db.flush()
 
-    # Create demo user
+    # Create admin user
     user = User(
-        email="demo@pheobus.io",
-        password_hash=hash_password("demo1234"),
-        first_name="Demo",
-        last_name="User",
+        email="wcastrooj@gmail.com",
+        password_hash=hash_password("Ojcc1993$"),
+        first_name="William",
+        last_name="Castro",
         role="admin",
         workspace_id=workspace.id,
     )
