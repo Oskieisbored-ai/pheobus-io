@@ -210,6 +210,7 @@ export const BUSINESS_TYPE_OPTIONS: { value: string; label: string; category: st
   { value: 'Legal Tech', category: 'Services', label: 'Legal Tech' },
   { value: 'Consulting', category: 'Services', label: 'Consulting' },
   { value: 'Recruiting', category: 'Services', label: 'Recruiting / Staffing' },
+  { value: 'Construction', category: 'Services', label: 'Construction' },
   // Media & Consumer
   { value: 'Media', category: 'Media', label: 'Media / Entertainment' },
   { value: 'Gaming', category: 'Media', label: 'Gaming' },
